@@ -1,0 +1,151 @@
+import java.util.*;
+abstract class Person {
+    protected String name;
+    protected String email;
+    public Person() {}
+    public Person(String name, String email){
+        this.name = name;
+        this.email = email;
+    }
+    public abstract void displayInfo(); 
+}
+
+class Student extends Person {
+    private int rollNo;
+    private String course;
+    private double marks;
+    private char grade;
+
+    public Student(){}
+    public Student(int rollNo, String name, String email, String course, double marks){
+        super(name, email);
+        this.rollNo = rollNo;
+        this.course = course;
+        this.marks = marks;
+        calculateGrade();
+    }
+    public void displayInfo(String msg){
+        System.out.println(msg);
+        displayInfo(); 
+    }
+    @Override
+    public void displayInfo(){
+        System.out.println("\nStudent Info:");
+        System.out.println("Roll No : " + rollNo);
+        System.out.println("Name    : " + name);
+        System.out.println("Email   : " + email);
+        System.out.println("Course  : " + course);
+        System.out.println("Marks   : " + marks);
+        System.out.println("Grade   : " + grade);
+        System.out.println("-----------------------------");
+    }
+    private void calculateGrade(){
+        if(marks >= 90) grade = 'A';
+        else if(marks >= 80) grade = 'B';
+        else if(marks >= 70) grade = 'C';
+        else grade = 'D';
+    }
+    public int getRollNo(){ return rollNo; }
+}
+interface RecordActions {
+    void addStudent(Student s);
+    void deleteStudent(int rollNo);
+    void updateStudent(int rollNo, Student updatedStudent);
+    Student searchStudent(int rollNo);
+    void viewAllStudents();
+}
+class StudentManager implements RecordActions {
+    Map<Integer, Student> students = new HashMap<>();
+    @Override
+    public void addStudent(Student s){
+        if(students.containsKey(s.getRollNo())){
+            System.out.println("Student with this roll number already exists!\n");
+        } else {
+            students.put(s.getRollNo(), s);
+            System.out.println("Student Added Successfully!\n");
+        }
+    }
+
+    @Override
+    public void deleteStudent(int rollNo){
+        if(students.remove(rollNo) != null)
+            System.out.println("Student Deleted Successfully!\n");
+        else
+            System.out.println(" Student Not Found!\n");
+    }
+    @Override
+    public void updateStudent(int rollNo, Student updated){
+        if(students.containsKey(rollNo)){
+            students.put(rollNo, updated);
+            System.out.println(" Record Updated Successfully!\n");
+        } else {
+            System.out.println(" Roll Number Not Found!\n");
+        }
+    }
+
+    @Override
+    public Student searchStudent(int rollNo){
+        return students.get(rollNo);
+    }
+
+    @Override
+    public void viewAllStudents(){
+        if(students.isEmpty())
+            System.out.println("\nNo Records Found!\n");
+        else
+            students.values().forEach(Student::displayInfo);
+    }
+}
+
+public class LabAssignment2{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        StudentManager manager = new StudentManager();
+        while(true){
+            System.out.println("\n===== STUDENT MANAGEMENT SYSTEM =====");
+            System.out.println("1. Add Student");
+            System.out.println("2. View All Students");
+            System.out.println("3. Search Student");
+            System.out.println("4. Update Student");
+            System.out.println("5. Delete Student");
+            System.out.println("6. Exit");
+            System.out.print("Enter Choice: ");
+
+            int ch = sc.nextInt();
+            switch(ch){
+                case 1 -> {
+                    System.out.print("Roll No: "); int r = sc.nextInt(); sc.nextLine();
+                    System.out.print("Name: "); String n = sc.nextLine();
+                    System.out.print("Email: "); String e = sc.nextLine();
+                    System.out.print("Course: "); String c = sc.nextLine();
+                    System.out.print("Marks: "); double m = sc.nextDouble();
+                    manager.addStudent(new Student(r,n,e,c,m));
+                }
+                case 2 -> manager.viewAllStudents();
+                case 3 -> {
+                    System.out.print("Enter Roll No: ");
+                    Student s = manager.searchStudent(sc.nextInt());
+                    if(s != null) s.displayInfo(" Student Found:");
+                    else System.out.println(" No Record Found!\n");
+                }
+                case 4 -> {
+                    System.out.print("Roll No to Update: "); int r = sc.nextInt(); sc.nextLine();
+                    System.out.print("New Name: "); String n = sc.nextLine();
+                    System.out.print("New Email: "); String e = sc.nextLine();
+                    System.out.print("New Course: "); String c = sc.nextLine();
+                    System.out.print("New Marks: "); double m = sc.nextDouble();
+                    manager.updateStudent(r,new Student(r,n,e,c,m));
+                }
+                case 5 -> {
+                    System.out.print("Enter Roll No: ");
+                    manager.deleteStudent(sc.nextInt());
+                }
+                case 6 -> {
+                    System.out.println("Thank you for using system!");
+                    System.exit(0);
+                }
+                default -> System.out.println("Invalid Choice! Please enter again.");
+            }
+        }
+    }
+}
